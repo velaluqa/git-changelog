@@ -26,7 +26,8 @@ module Git
           while i >= 0 do
             puts "## #{tags[i]}\n\n"
             if i > 0
-              range = Shellwords.escape "#{tags[i-1]}^2^..#{tags[i]}^2"
+              start_predecessor = `git log --format=%H -n 1 #{Shellwords.escape(tags[i-1])}^2^@`.strip
+              range = Shellwords.escape "#{start_predecessor}..#{tags[i]}^2"
             else
               range = Shellwords.escape "#{tags[i]}^2"
             end
