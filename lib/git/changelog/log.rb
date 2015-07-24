@@ -26,10 +26,10 @@ module Git
           while i >= 0 do
             puts "## #{tags[i]}\n\n"
             if i > 0
-              start_predecessor = `git log --format=%H -n 1 #{Shellwords.escape(tags[i-1])}^2^@`.strip
-              range = Shellwords.escape "#{start_predecessor}..#{tags[i]}^2"
+              start_predecessor = `git log --format=%H -n 1 #{Shellwords.escape(tags[i-1].to_s)}^2^@`.strip
+              range = Shellwords.escape "#{start_predecessor}..#{tags[i].to_s}^2"
             else
-              range = Shellwords.escape "#{tags[i]}^2"
+              range = Shellwords.escape "#{tags[i].to_s}^2"
             end
             print_commits(`git log --graph --oneline #{range}`)
             i -= 1
