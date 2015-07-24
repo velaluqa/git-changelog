@@ -20,7 +20,22 @@ module Git
         tags.compact!
         tags.sort!
 
+        # Discard tag if it includes commits not reachable from HEAD
+        while not tags.empty? \
+              and `git log --oneline HEAD..#{tags.last.to_s}^2 | wc -l`.to_f > 0
+          tags.pop
+        end
+
         unless tags.empty?
+
+          if `git describe --tags 2>/dev/null`.empty?
+            start = `git log --format=%H -n 1 #{Shellwords.escape(tags.last.to_s)}^2`.strip
+            start_predecessor = `git log --format=%H -n 1 #{start}^@`.strip
+            if `git log --oneline #{start_predecessor}..HEAD | wc -l`.to_f > 1
+              puts "## Unreleased on branch #{`git describe --contains --all HEAD`}\n"
+              print_commits(`git log --graph --oneline #{start_predecessor}..HEAD`, start)
+            end
+          end
 
           i = tags.length - 1
           while i >= 0 do
@@ -38,9 +53,9 @@ module Git
           end
 
         else
-
-          print_commits(`git log --graph --oneline develop`, start)
-
+          puts "## Unreleased on branch #{`git describe --contains --all HEAD`}\n"
+          start = `git log --format=%H | tail -n 1`.strip
+          print_commits(`git log --graph --oneline HEAD`, start)
         end
       end
 
