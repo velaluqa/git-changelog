@@ -56,15 +56,12 @@ module Git
           # |/
           if not reached_start
             /(?<tree>[^a-f0-9]*)(?:(?<short_rev>[a-f0-9]+)(?<message>.+))?$/ =~ log_line
-            if short_rev.nil?
-              output.push "`#{tree.strip}`"
+            if not short_rev.nil? and start =~ /^#{short_rev}/
+              throw "error" if start.nil?
+              reached_start = true
             else
-              if start =~ /^#{short_rev}/
-                throw "error" if start.nil?
-                reached_start = true
-              else
-                output.push "`#{tree}#{short_rev}`#{message}"
-              end
+              tree = tree.strip if short_rev.nil?
+              output.push "`#{tree}#{short_rev}`#{message}"
             end
           end
         end
