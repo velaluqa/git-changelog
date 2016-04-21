@@ -76,6 +76,15 @@ module Git
               reached_start = true
             else
               tree = tree.strip if short_rev.nil?
+              while message and idx = message.index(/(?:_|\*)/, idx ||= 0)
+                preceding_chars = message[0..(idx-1)].split('')
+                in_code_block = preceding_chars.select {|c| c == '`' }.size.odd?
+                unless in_code_block
+                  message[idx] = "\\#{message[idx]}"
+                  idx += 1
+                end
+                idx += 1
+              end
               output.push "`#{tree}#{short_rev}`#{message}"
             end
           end
